@@ -4,11 +4,24 @@ from pydantic import BaseModel
 from typing import Optional
 import models
 from database import engine, get_db
-
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+app.mount("/static", StaticFiles(directory="."), name="static")
+
+@app.get("/app")
+def frontend():
+    return FileResponse("index.html")
 class CandidaturaCreate(BaseModel):
     empresa: str
     cargo: str

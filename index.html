@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CandidaTrack</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
+    h1 { color: #38bdf8; margin-bottom: 24px; font-size: 28px; }
+    h2 { color: #94a3b8; margin-bottom: 16px; font-size: 18px; }
+    .container { max-width: 1100px; margin: 0 auto; }
+    .card { background: #1e293b; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 CandidaTrack</h1>
+
+    <div class="card">
+      <h2>Nova Candidatura</h2>
+      <form id="formCandidatura">
+        <input type="text" id="empresa" placeholder="Empresa" required>
+        <input type="text" id="cargo" placeholder="Cargo" required>
+        <input type="text" id="plataforma" placeholder="Plataforma (LinkedIn, Gupy...)" required>
+        <select id="status">
+          <option value="Enviado">Enviado</option>
+          <option value="Em andamento">Em andamento</option>
+          <option value="Aprovado">Aprovado</option>
+          <option value="Reprovado">Reprovado</option>
+        </select>
+        <input type="text" id="observacoes" placeholder="Observações (opcional)">
+        <button type="submit">Adicionar</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Minhas Candidaturas</h2>
+      <table id="tabela">
+        <thead>
+          <tr>
+            <th>Empresa</th>
+            <th>Cargo</th>
+            <th>Plataforma</th>
+            <th>Status</th>
+            <th>Data</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+
+  </div>
+ <script>
+    const API = 'http://127.0.0.1:8000';
+
+    async function carregarCandidaturas() {
+      const res = await fetch(`${API}/candidaturas`);
+      const dados = await res.json();
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+      dados.forEach(c => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${c.empresa}</td>
+            <td>${c.cargo}</td>
+            <td>${c.plataforma}</td>
+            <td>${c.status}</td>
+            <td>${c.data_candidatura ? c.data_candidatura.substring(0,10) : '-'}</td>
+            <td>
+              <button onclick="deletar(${c.id})">🗑️ Deletar</button>
+            </td>
+          </tr>`;
+      });
+    }
+
+    document.getElementById('formCandidatura').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const body = {
+        empresa: document.getElementById('empresa').value,
+        cargo: document.getElementById('cargo').value,
+        plataforma: document.getElementById('plataforma').value,
+        status: document.getElementById('status').value,
+        observacoes: document.getElementById('observacoes').value
+      };
+      await fetch(`${API}/candidaturas`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      });
+      e.target.reset();
+      carregarCandidaturas();
+    });
+
+    async function deletar(id) {
+      if (!confirm('Deletar essa candidatura?')) return;
+      await fetch(`${API}/candidaturas/${id}`, { method: 'DELETE' });
+      carregarCandidaturas();
+    }
+
+    carregarCandidaturas();
+  </script>
+</body>
+</html>

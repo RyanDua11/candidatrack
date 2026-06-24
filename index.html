@@ -11,9 +11,11 @@
     h2 { color: #94a3b8; margin-bottom: 16px; font-size: 18px; }
     .container { max-width: 1100px; margin: 0 auto; }
     .card { background: #1e293b; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    #starfield { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
   </style>
 </head>
 <body>
+  <canvas id="starfield"></canvas>
   <div class="container">
     <h1>🎯 CandidaTrack</h1>
 
@@ -100,6 +102,51 @@
     }
 
     carregarCandidaturas();
+  </script>
+  
+  <script>
+   const canvas = document.getElementById("starfield");
+   const ctx = canvas.getContext("2d");
+   let mouseX = 0, mouseY = 0;
+   let stars = [], nebulas = [];
+   canvas.width = window.innerWidth;
+   canvas.height = window.innerHeight;
+   function init() {
+    stars = [];
+    nebulas = [];
+    for (var i = 0; i < 200; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 1.5 + 0.5,
+        opacity: Math.random() * 0.7 + 0.3,
+        twinkle: Math.random() * Math.PI * 2
+      });
+   }
+  }
+
+  function drawStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    stars.forEach(star => {
+      const twinkleOpacity = star.opacity * (0.7 + 0.3 * Math.sin(Date.now() * 0.001 + star.twinkle));
+      ctx.beginPath();
+      ctx.arc(star.x + mouseX * 0.03, star.y + mouseY * 0.03, star.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${twinkleOpacity})`;
+      ctx.fill();
+    });
+  }
+
+  function animate() {
+    drawStars();
+    requestAnimationFrame(animate);
+
+  }
+
+  document.addEventListener("mousemove", e => { mouseX = e.clientX - canvas.width / 2; mouseY = e.clientY - canvas.height / 2;});
+  
+  init();
+  animate();
+
   </script>
 </body>
 </html>

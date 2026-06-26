@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Text
 from datetime import datetime
 from database import Base
 
@@ -12,3 +12,11 @@ class Candidatura(Base):
     status = Column(String, default="Enviado")
     data_candidatura = Column(DateTime, default=datetime.now)
     observacoes = Column(String, nullable=True)
+
+class Curriculo(Base):
+    __tablename__ = "curriculo"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nome_arquivo = Column(String, nullable=False)
+    texto_extraido = Column(Text, nullable=False)
+    data_upload = Column(DateTime, default=datetime.now)

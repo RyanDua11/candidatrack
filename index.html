@@ -4,77 +4,862 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CandidaTrack</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background: #000 url('/static/bg.png') center center / cover no-repeat fixed; color: #e2e8f0; padding: 20px; }
-    h1 { color: #38bdf8; margin-bottom: 24px; font-size: 28px; }
-    h2 { color: #94a3b8; margin-bottom: 16px; font-size: 18px; }
-    .container { max-width: 1100px; margin: 0 auto; }
-    .card { background: #1e293b; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
-    #starfield { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #0d0b08;
+      color: #e8dcc8;
+      min-height: 100vh;
+      padding: 48px 24px;
+      overflow-x: hidden;
+    }
+
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      transition: transform 0.1s ease-out;
+    }
+    .orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(201,168,76,0.10) 0%, transparent 70%);
+      top: -100px; left: -150px;
+    }
+    .orb-2 {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(139,105,20,0.08) 0%, transparent 70%);
+      bottom: 100px; right: -100px;
+    }
+    .orb-3 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 56px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid rgba(201,168,76,0.2);
+      position: relative;
+    }
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 50%;
+      transform: translateX(-50%);
+      width: 100px; height: 1px;
+      background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+    }
+    .header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 64px;
+      font-weight: 300;
+      letter-spacing: 10px;
+      color: #e8dcc8;
+      text-transform: uppercase;
+    }
+    .header h1 span { color: #c9a84c; }
+    .header p {
+      margin-top: 10px;
+      font-size: 11px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: rgba(232,220,200,0.4);
+      font-weight: 300;
+    }
+
+    .card {
+      background: #1a1508;
+      border: 1px solid #c9a84c;
+      box-shadow:
+        inset 0 0 0 1px #0d0b08,
+        0 8px 60px rgba(0,0,0,0.6);
+      border-radius: 3px;
+      padding: 40px;
+      margin-bottom: 32px;
+      position: relative;
+      transition: box-shadow 0.3s;
+    }
+   .card::before, .card::after {
+      content: '';
+      position: absolute;
+      width: 20px; height: 20px;
+      border-color: #c9a84c;
+      border-style: solid;
+      opacity: 0.6;
+    }
+    .card::before {
+      top: 8px; left: 8px;
+      border-width: 1px 0 0 1px;
+    }
+    .card::after {
+      bottom: 8px; right: 8px;
+      border-width: 0 1px 1px 0;
+    }
+    
+    .card h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #e8dcc8;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .card h2::before {
+      content: '';
+      width: 20px; height: 1px;
+      background: #c9a84c;
+      flex-shrink: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 16px;
+      align-items: end;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 2px;
+      color: #e8dcc8;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    input::placeholder { color: rgba(232,220,200,0.3); font-weight: 300; }
+    select option { background: #1a1508; color: #e8dcc8; }
+    input:focus, select:focus {
+  border-color: #c9a84c;
+  box-shadow: 0 0 0 3px rgba(201,168,76,0.08);
+}
+
+.card::before, .card::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  border-color: #c9a84c;
+  border-style: solid;
+  opacity: 0.6;
+}
+   
+      .btn-primary {
+      padding: 12px 32px;
+      background: transparent; color: #c9a84c;
+      border: 1px solid #c9a84c;
+      border-radius: 2px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover {
+      background: rgba(201,168,76,0.1);
+      box-shadow: 0 0 20px rgba(201,168,76,0.15);
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { border-bottom: 1px solid rgba(201,168,76,0.2); }
+    th {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #c9a84c;
+      font-weight: 500;
+      padding: 0 16px 16px 0;
+      text-align: left;
+    }
+    td {
+      padding: 16px 16px 16px 0;
+      font-size: 14px;
+      color: rgba(232,220,200,0.8);
+      border-bottom: 1px solid rgba(201,168,76,0.06);
+      font-weight: 300;
+    }
+    tr:hover td { background: rgba(201,168,76,0.03); }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 2px;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .badge-enviado   { background: rgba(201,168,76,0.08);  color: #c9a84c;  border: 1px solid rgba(201,168,76,0.3); }
+    .badge-andamento { background: rgba(59,130,246,0.08);  color: #6ba3f5;  border: 1px solid rgba(59,130,246,0.2); }
+    .badge-aprovado  { background: rgba(16,185,129,0.08);  color: #34d399;  border: 1px solid rgba(16,185,129,0.2); }
+    .badge-reprovado { background: rgba(139,26,26,0.08);   color: #c0504d;  border: 1px solid rgba(139,26,26,0.3); }
+
+    .btn-del {
+      padding: 5px 12px;
+      background: transparent;
+      border: 1px solid rgba(139,26,26,0.4);
+      color: #c0504d;
+      border-radius: 2px;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .btn-del:hover { background: #8b1a1a; color: #fff; border-color: #8b1a1a; }
+
+    .empty {
+      text-align: center;
+      padding: 48px;
+      color: rgba(232,220,200,0.25);
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-overlay.ativo {
+      display: flex;
+    }
+    .modal {
+      background: #1a1508;
+      border: 1px solid #c9a84c;
+      box-shadow: 0 8px 60px rgba(0,0,0,0.8);
+      border-radius: 3px;
+      padding: 40px 48px;
+      text-align: center;
+    }
+    .modal-texto {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 300;
+      letter-spacing: 2px;
+      color: #e8dcc8;
+      margin-bottom: 32px;
+    }
+    .modal-btns {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .card::before {
+      top: 8px; left: 8px;
+      border-width: 1px 0 0 1px;
+    }
+    .card::after {
+      bottom: 8px; right: 8px;
+      border-width: 0 1px 1px 0;
+    }
+    
+    .candidaturas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .cand-card {
+      background: #1a1508;
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 3px;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      overflow: hidden;
+    }
+    .cand-card:hover {
+      border-color: #c9a84c;
+      box-shadow: 0 0 20px rgba(201,168,76,0.08);
+    }
+    .cand-card.aberto {
+      border-color: #c9a84c;
+    }
+
+    .cand-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      gap: 12px;
+    }
+    .cand-empresa {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #e8dcc8;
+    }
+    .cand-cargo {
+      font-size: 12px;
+      color: rgba(232,220,200,0.5);
+      font-weight: 300;
+      margin-top: 2px;
+    }
+
+    .cand-detalhes {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+    }
+    .cand-card.aberto .cand-detalhes {
+      max-height: 500px;
+      opacity: 1;
+    }
+    .cand-detalhes-inner {
+      padding: 0 24px 24px;
+      border-top: 1px solid rgba(201,168,76,0.15);
+      padding-top: 20px;
+      margin-top: 4px;
+    }
+
+    .cand-info-linha {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 13px;
+    }
+    .cand-info-label {
+      color: rgba(232,220,200,0.4);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 10px;
+    }
+    .cand-info-valor {
+      color: rgba(232,220,200,0.85);
+      font-weight: 300;
+      text-align: right;
+    }
+
+    .cand-actions {
+      margin-top: 16px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .cand-info-valor input,
+    .cand-info-valor select {
+      width: 160px;
+      padding: 4px 8px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 2px;
+      color: #e8dcc8;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      text-align: right;
+      outline: none;
+    }
+    .cand-info-valor select option {
+      background: #1a1508;
+      color: #e8dcc8;
+    }
+    .cand-info-valor input:focus,
+    .cand-info-valor select:focus {
+      border-color: #c9a84c;
+    }
+
+    .btn-editar {
+      padding: 5px 12px;
+      background: transparent;
+      border: 1px solid rgba(201,168,76,0.4);
+      color: #c9a84c;
+      border-radius: 2px;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
+      margin-right: 8px;
+    }
+    .btn-editar:hover {
+      background: rgba(201,168,76,0.1);
+    }
+
+    .btn-salvar {
+      padding: 5px 12px;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.4);
+      color: #34d399;
+      border-radius: 2px;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
+      margin-right: 8px;
+    }
+    .btn-salvar:hover {
+      background: rgba(16,185,129,0.2);
+    }
+
+    .btn-cancelar-edicao {
+      padding: 5px 12px;
+      background: transparent;
+      border: 1px solid rgba(232,220,200,0.2);
+      color: rgba(232,220,200,0.6);
+      border-radius: 2px;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Space Grotesk', sans-serif;
+      margin-right: 8px;
+    }
+    .btn-cancelar-edicao:hover {
+      background: rgba(232,220,200,0.05);
+      color: #e8dcc8;
+    }
+    
+    #curriculo-status {
+  font-size: 13px;
+  color: rgba(232,220,200,0.6);
+  font-weight: 300;
+  min-height: 20px;
+}
+.curriculo-ativo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.curriculo-ativo-nome {
+  color: #c9a84c;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+}
+.curriculo-ativo-data {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: rgba(232,220,200,0.35);
+  text-transform: uppercase;
+}
+
+.vaga-resultado {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(201,168,76,0.15);
+}
+.vaga-resultado-titulo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: #e8dcc8;
+  margin-bottom: 4px;
+}
+.vaga-resultado-empresa {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #c9a84c;
+  margin-bottom: 20px;
+}
+.vaga-secao-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(232,220,200,0.4);
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
+.vaga-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.vaga-tag {
+  padding: 4px 12px;
+  border-radius: 2px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  border: 1px solid rgba(201,168,76,0.3);
+  color: rgba(232,220,200,0.7);
+  background: rgba(201,168,76,0.05);
+}
+.vaga-tag.obrigatorio {
+  border-color: rgba(201,168,76,0.5);
+  color: #c9a84c;
+  background: rgba(201,168,76,0.08);
+}
+.vaga-resumo {
+  font-size: 13px;
+  color: rgba(232,220,200,0.6);
+  font-weight: 300;
+  line-height: 1.6;
+  margin-top: 16px;
+}
+.vaga-input-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.vaga-input-row input {
+  flex: 1;
+}
+#textarea-vaga {
+  width: 100%;
+  min-height: 140px;
+  padding: 12px 16px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 2px;
+  color: #e8dcc8;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  outline: none;
+  resize: vertical;
+  margin-top: 16px;
+  display: none;
+}
+#textarea-vaga.visivel { display: block; }
+#textarea-vaga:focus { border-color: #c9a84c; }
+
   </style>
 </head>
+
 <body>
-  <canvas id="starfield"></canvas>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="vignette"></div>
+
   <div class="container">
-    <h1>🎯 CandidaTrack</h1>
+    <div class="header">
+      <h1>Candida<span>Track</span></h1>
+      <p>Sistema de rastreamento de candidaturas</p>
+    </div>
+
+    <div class="card" id="card-curriculo">
+      <h2>Currículo</h2>
+      <div id="curriculo-status"></div>
+      <div style="margin-top: 20px; display: flex; align-items: center; gap: 16px;">
+        <label for="inputCurriculo" class="btn-primary" style="cursor:pointer;">
+          Enviar Currículo
+        </label>
+        <input type="file" id="inputCurriculo" accept=".pdf,.docx" style="display:none;">
+        <span id="curriculo-feedback" style="font-size:12px; letter-spacing:2px; color: rgba(232,220,200,0.5);"></span>
+      </div>
+    </div>
 
     <div class="card">
+  <h2>Analisar Vaga</h2>
+  <div class="vaga-input-row">
+    <input type="text" id="inputUrlVaga" placeholder="Cole o link da vaga aqui..." autocomplete="off">
+    <button class="btn-primary" onclick="analisarUrl()">Analisar</button>
+  </div>
+  <textarea id="textarea-vaga" placeholder="Não consegui ler a página automaticamente. Cole aqui o texto completo da vaga (título, empresa, descrição, requisitos — tudo junto)..."></textarea>
+  <div style="margin-top:12px; display:none;" id="btn-analisar-texto-wrap">
+    <button class="btn-primary" onclick="analisarTexto()">Analisar Texto</button>
+  </div>
+  <div id="vaga-feedback" style="font-size:12px; letter-spacing:2px; color:rgba(232,220,200,0.5); margin-top:12px;"></div>
+  <div id="vaga-resultado" class="vaga-resultado" style="display:none;"></div>
+</div>
+
+  <div class="card">
       <h2>Nova Candidatura</h2>
       <form id="formCandidatura">
-        <input type="text" id="empresa" placeholder="Empresa" required>
-        <input type="text" id="cargo" placeholder="Cargo" required>
-        <input type="text" id="plataforma" placeholder="Plataforma (LinkedIn, Gupy...)" required>
-        <select id="status">
-          <option value="Enviado">Enviado</option>
-          <option value="Em andamento">Em andamento</option>
-          <option value="Aprovado">Aprovado</option>
-          <option value="Reprovado">Reprovado</option>
-        </select>
-        <input type="text" id="observacoes" placeholder="Observações (opcional)">
-        <button type="submit">Adicionar</button>
+        <div class="form-grid">
+          <input type="text" id="empresa" placeholder="Empresa" autocomplete="off" required>
+          <input type="text" id="cargo" placeholder="Cargo" autocomplete="off" required>
+          <input type="text" id="plataforma" placeholder="Plataforma (Linkedin, Gupy...)" autocomplete="off" required>
+        </div>
+        <div class="form-row">
+          <select id="status">
+            <option value="Enviado">Enviado</option>
+            <option value="Em Andamento">Em Andamento</option>
+            <option value="Aprovado">Aprovado</option>
+            <option value="Reprovado">Reprovado</option>
+          </select>
+          <input type="text" id="observacoes" placeholder="Observações (opcional)">
+          <button type="submit" class="btn-primary">Adicionar</button>
+        </div>
       </form>
     </div>
-
     <div class="card">
       <h2>Minhas Candidaturas</h2>
-      <table id="tabela">
-        <thead>
-          <tr>
-            <th>Empresa</th>
-            <th>Cargo</th>
-            <th>Plataforma</th>
-            <th>Status</th>
-            <th>Data</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
+      <div class="candidaturas-grid" id="candidaturasGrid"></div>
+      <div class="empty" id="empty" style="display:none;">Nenhuma candidatura registrada ainda.</div>
     </div>
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <p class="modal-texto">Deletar essa candidatura?</p>
+      <div class="modal-btns">
+        <button class="btn-del" id="modalConfirmar">Deletar</button>
+        <button class="btn-primary" id="modalCancelar">Cancelar</button>
+      </div>
+    </div>
+  </div>
 
   </div>
- <script>
+  <script>
+    const orb1 = document.querySelector('.orb-1');
+    const orb2 = document.querySelector('.orb-2');
+
+    document.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * 30;
+      orb1.style.transform = `translate(${x}px, ${y}px)`;
+      orb2.style.transform = `translate(${-x}px, ${-y}px)`;
+    });
+
     const API = 'http://127.0.0.1:8000';
+
+    function badgeClass(status) {
+      if (status === 'Enviado') return 'badge badge-enviado';
+      if (status === 'Em Andamento') return 'badge badge-andamento';
+      if (status === 'Aprovado') return 'badge badge-aprovado';
+      if (status === 'Reprovado') return 'badge badge-reprovado';
+      return 'badge badge-enviado';
+    }
+
+    async function carregarCurriculo() {
+  const res = await fetch(`${API}/curriculo`);
+  const dados = await res.json();
+  const statusEl = document.getElementById('curriculo-status');
+  if (!dados) {
+    statusEl.innerHTML = '<span style="color:rgba(232,220,200,0.3); letter-spacing:2px; font-size:11px; text-transform:uppercase;">Nenhum currículo enviado ainda</span>';
+  } else {
+    const data = dados.data_upload ? dados.data_upload.substring(0,10) : '';
+    statusEl.innerHTML = `
+      <div class="curriculo-ativo">
+        <span class="curriculo-ativo-nome">${dados.nome_arquivo}</span>
+        <span class="curriculo-ativo-data">enviado em ${data}</span>
+      </div>`;
+  }
+}
+
+document.getElementById('inputCurriculo').addEventListener('change', async (e) => {
+  const arquivo = e.target.files[0];
+  if (!arquivo) return;
+  const feedback = document.getElementById('curriculo-feedback');
+  feedback.textContent = 'Enviando...';
+  const formData = new FormData();
+  formData.append('arquivo', arquivo);
+  try {
+    const res = await fetch(`${API}/curriculo/upload`, { method: 'POST', body: formData });
+    if (res.ok) {
+      feedback.style.color = '#34d399';
+      feedback.textContent = 'Currículo salvo ✓';
+      carregarCurriculo();
+    } else {
+      feedback.style.color = '#c0504d';
+      feedback.textContent = 'Erro ao enviar. Tente novamente.';
+    }
+  } catch {
+    feedback.style.color = '#c0504d';
+    feedback.textContent = 'Erro de conexão.';
+  }
+  e.target.value = '';
+});
+
+async function analisarUrl() {
+  const url = document.getElementById('inputUrlVaga').value.trim();
+  if (!url) return;
+  const feedback = document.getElementById('vaga-feedback');
+  const textarea = document.getElementById('textarea-vaga');
+  const btnTextoWrap = document.getElementById('btn-analisar-texto-wrap');
+  feedback.style.color = 'rgba(232,220,200,0.5)';
+  feedback.textContent = 'Buscando vaga...';
+  document.getElementById('vaga-resultado').style.display = 'none';
+  try {
+    const res = await fetch(`${API}/vaga/analisar-url`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ url })
+    });
+    const dados = await res.json();
+    if (dados.sucesso) {
+      mostrarResultadoVaga(dados.dados);
+      feedback.textContent = '';
+      textarea.classList.remove('visivel');
+      btnTextoWrap.style.display = 'none';
+    } else {
+      feedback.style.color = '#c9a84c';
+      feedback.textContent = 'Não consegui ler a página automaticamente. Cole o texto da vaga abaixo:';
+      textarea.classList.add('visivel');
+      btnTextoWrap.style.display = 'block';
+    }
+  } catch {
+    feedback.style.color = '#c0504d';
+    feedback.textContent = 'Erro de conexão.';
+  }
+}
+
+async function analisarTexto() {
+  const texto = document.getElementById('textarea-vaga').value.trim();
+  if (!texto) return;
+  const feedback = document.getElementById('vaga-feedback');
+  feedback.style.color = 'rgba(232,220,200,0.5)';
+  feedback.textContent = 'Analisando...';
+  try {
+    const res = await fetch(`${API}/vaga/analisar-texto`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ texto })
+    });
+    const dados = await res.json();
+    if (dados.sucesso) {
+      mostrarResultadoVaga(dados.dados);
+      feedback.textContent = '';
+    } else {
+      feedback.style.color = '#c0504d';
+      feedback.textContent = 'Erro ao analisar o texto.';
+    }
+  } catch {
+    feedback.style.color = '#c0504d';
+    feedback.textContent = 'Erro de conexão.';
+  }
+}
+
+function mostrarResultadoVaga(dados) {
+  const el = document.getElementById('vaga-resultado');
+  const obrigatorios = (dados.requisitos_obrigatorios || []).map(r => `<span class="vaga-tag obrigatorio">${r}</span>`).join('');
+  const desejaveis = (dados.requisitos_desejaveis || []).map(r => `<span class="vaga-tag">${r}</span>`).join('');
+  el.innerHTML = `
+    <div class="vaga-resultado-titulo">${dados.titulo || 'Cargo não identificado'}</div>
+    <div class="vaga-resultado-empresa">${dados.empresa || 'Empresa não identificada'}</div>
+    ${obrigatorios ? `<div class="vaga-secao-label">Requisitos Obrigatórios</div><div class="vaga-tags">${obrigatorios}</div>` : ''}
+    ${desejaveis ? `<div class="vaga-secao-label">Requisitos Desejáveis</div><div class="vaga-tags">${desejaveis}</div>` : ''}
+    ${dados.resumo ? `<div class="vaga-resumo">${dados.resumo}</div>` : ''}
+  `;
+  el.style.display = 'block';
+}
+
+carregarCurriculo();
 
     async function carregarCandidaturas() {
       const res = await fetch(`${API}/candidaturas`);
       const dados = await res.json();
-      const tbody = document.getElementById('tbody');
-      tbody.innerHTML = '';
+      const grid = document.getElementById('candidaturasGrid');
+      const empty = document.getElementById('empty');
+      grid.innerHTML = '';
+      if (dados.length === 0) { empty.style.display = 'block'; return; }
+      empty.style.display = 'none';
       dados.forEach(c => {
-        tbody.innerHTML += `
-          <tr>
-            <td>${c.empresa}</td>
-            <td>${c.cargo}</td>
-            <td>${c.plataforma}</td>
-            <td>${c.status}</td>
-            <td>${c.data_candidatura ? c.data_candidatura.substring(0,10) : '-'}</td>
-            <td>
-              <button onclick="deletar(${c.id})">🗑️ Deletar</button>
-            </td>
-          </tr>`;
+        grid.innerHTML += `
+          <div class="cand-card" id="card-${c.id}">
+            <div class="cand-card-header" onclick="toggleCard(${c.id})">
+              <div>
+                <div class="cand-empresa">${c.empresa}</div>
+                <div class="cand-cargo">${c.cargo}</div>
+              </div>
+              <span class="${badgeClass(c.status)}">${c.status}</span>
+            </div>
+            <div class="cand-detalhes">
+              <div class="cand-detalhes-inner">
+                <div class="cand-info-linha">
+                  <span class="cand-info-label">Status</span>
+                  <span class="cand-info-valor" id="valor-status-${c.id}">${c.status}</span>
+                </div>
+                <div class="cand-info-linha">
+                  <span class="cand-info-label">Plataforma</span>
+                  <span class="cand-info-valor" id="valor-plataforma-${c.id}">${c.plataforma}</span>
+                </div>
+                <div class="cand-info-linha">
+                  <span class="cand-info-label">Data</span>
+                  <span class="cand-info-valor">${c.data_candidatura ? c.data_candidatura.substring(0,10) : '-'}</span>
+                </div>
+                <div class="cand-info-linha">
+                  <span class="cand-info-label">Observações</span>
+                  <span class="cand-info-valor" id="valor-observacoes-${c.id}">${c.observacoes ? c.observacoes : '-'}</span>
+                </div>
+                <div class="cand-actions" id="actions-${c.id}">
+                  <button class="btn-editar" onclick="editarCard(${c.id}, '${c.status}', '${c.plataforma}', '${c.observacoes ? c.observacoes.replace(/'/g, "\\'") : ''}', '${c.empresa}', '${c.cargo}')">Editar</button>
+                  <button class="btn-del" onclick="deletar(${c.id})">Deletar</button>
+                </div>
+              </div>
+            </div>
+          </div>`;
       });
+    }
+
+    function toggleCard(id) {
+      const card = document.getElementById(`card-${id}`);
+      card.classList.toggle('aberto');
+    }
+
+    function editarCard(id, status, plataforma, observacoes, empresa, cargo) {
+      document.getElementById(`valor-status-${id}`).innerHTML = `
+        <select id="edit-status-${id}">
+          <option value="Enviado" ${status === 'Enviado' ? 'selected' : ''}>Enviado</option>
+          <option value="Em Andamento" ${status === 'Em Andamento' ? 'selected' : ''}>Em Andamento</option>
+          <option value="Aprovado" ${status === 'Aprovado' ? 'selected' : ''}>Aprovado</option>
+          <option value="Reprovado" ${status === 'Reprovado' ? 'selected' : ''}>Reprovado</option>
+        </select>`;
+
+      document.getElementById(`valor-plataforma-${id}`).innerHTML = `
+        <input type="text" id="edit-plataforma-${id}" value="${plataforma}">`;
+
+      document.getElementById(`valor-observacoes-${id}`).innerHTML = `
+        <input type="text" id="edit-observacoes-${id}" value="${observacoes}">`;
+
+      document.getElementById(`actions-${id}`).innerHTML = `
+        <button class="btn-salvar" onclick="salvarEdicao(${id}, '${empresa}', '${cargo}')">Salvar</button>
+        <button class="btn-cancelar-edicao" onclick="carregarCandidaturas()">Cancelar</button>`;
+    }
+
+    async function salvarEdicao(id, empresa, cargo) {
+      const body = {
+        empresa: empresa,
+        cargo: cargo,
+        status: document.getElementById(`edit-status-${id}`).value,
+        plataforma: document.getElementById(`edit-plataforma-${id}`).value,
+        observacoes: document.getElementById(`edit-observacoes-${id}`).value
+      };
+      await fetch(`${API}/candidaturas/${id}`, {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      });
+      carregarCandidaturas();
     }
 
     document.getElementById('formCandidatura').addEventListener('submit', async (e) => {
@@ -95,58 +880,27 @@
       carregarCandidaturas();
     });
 
-    async function deletar(id) {
-      if (!confirm('Deletar essa candidatura?')) return;
-      await fetch(`${API}/candidaturas/${id}`, { method: 'DELETE' });
-      carregarCandidaturas();
+    let idParaDeletar = null;
+    const modalOverlay = document.getElementById('modalOverlay');
+
+    function deletar(id) {
+      idParaDeletar = id;
+      modalOverlay.classList.add('ativo');
     }
 
-    carregarCandidaturas();
-  </script>
-  
-  <script>
-   const canvas = document.getElementById("starfield");
-   const ctx = canvas.getContext("2d");
-   let mouseX = 0, mouseY = 0;
-   let stars = [], nebulas = [];
-   canvas.width = window.innerWidth;
-   canvas.height = window.innerHeight;
-   function init() {
-    stars = [];
-    nebulas = [];
-    for (var i = 0; i < 200; i++) {
-      stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: Math.random() * 1.5 + 0.5,
-        opacity: Math.random() * 0.7 + 0.3,
-        twinkle: Math.random() * Math.PI * 2
-      });
-   }
-  }
-
-  function drawStars() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    stars.forEach(star => {
-      const twinkleOpacity = star.opacity * (0.7 + 0.3 * Math.sin(Date.now() * 0.001 + star.twinkle));
-      ctx.beginPath();
-      ctx.arc(star.x + mouseX * 0.03, star.y + mouseY * 0.03, star.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${twinkleOpacity})`;
-      ctx.fill();
+    document.getElementById('modalCancelar').addEventListener('click', () => {
+      idParaDeletar = null;
+      modalOverlay.classList.remove('ativo');
     });
-  }
 
-  function animate() {
-    drawStars();
-    requestAnimationFrame(animate);
+    document.getElementById('modalConfirmar').addEventListener('click', async () => {
+      await fetch(`${API}/candidaturas/${idParaDeletar}`, { method: 'DELETE' });
+      idParaDeletar = null;
+      modalOverlay.classList.remove('ativo');
+      carregarCandidaturas();
+    });
 
-  }
-
-  document.addEventListener("mousemove", e => { mouseX = e.clientX - canvas.width / 2; mouseY = e.clientY - canvas.height / 2;});
-  
-  init();
-  animate();
-
+    carregarCandidaturas();
   </script>
 </body>
 </html>

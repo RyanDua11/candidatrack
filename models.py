@@ -19,4 +19,17 @@ class Curriculo(Base):
     id = Column(Integer, primary_key=True, index=True)
     nome_arquivo = Column(String, nullable=False)
     texto_extraido = Column(Text, nullable=False)
+    complemento = Column(Text, nullable=True)
     data_upload = Column(DateTime, default=datetime.now)
+    github_url = Column(String, nullable=True)
+
+class HistoricoVaga(Base):
+    __tablename__ = "historico_vagas"
+
+    id = Column(Integer, primary_key=True, index=True)
+    titulo = Column(String, nullable=True)
+    empresa = Column(String, nullable=True)
+    requisitos_obrigatorios = Column(Text, nullable=True)  # JSON string
+    requisitos_desejaveis = Column(Text, nullable=True)    # JSON string
+    score = Column(Integer, nullable=True)
+    data_analise = Column(DateTime, default=datetime.now)

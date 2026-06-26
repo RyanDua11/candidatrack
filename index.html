@@ -6,6 +6,215 @@
   <title>CandidaTrack</title>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
+
+/* Scrollbar global da página */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(201,168,76,0.25);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(201,168,76,0.45);
+}
+* { scrollbar-width: thin; scrollbar-color: rgba(201,168,76,0.25) transparent; }
+
+/* Select dropdown estilizado */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23c9a84c' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+select option {
+  background: #1a1508;
+  color: #e8dcc8;
+}
+select option:checked,
+select option:hover {
+  background: rgba(201,168,76,0.15);
+  color: #c9a84c;
+}
+
+textarea {
+  color: #e8dcc8;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.6;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(201,168,76,0.3) transparent;
+}
+textarea::placeholder {
+  color: rgba(232,220,200,0.3);
+  font-weight: 300;
+}
+textarea::-webkit-scrollbar {
+  width: 4px;
+}
+textarea::-webkit-resizer {
+  display: none;
+}
+textarea::-webkit-scrollbar-track {
+  background: transparent;
+}
+textarea::-webkit-scrollbar-thumb {
+  background: rgba(201,168,76,0.3);
+  border-radius: 2px;
+}
+
+/* === CHAT CONSULTIVO === */
+#chat-consultivo-wrap {
+  display: none;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(201,168,76,0.15);
+}
+.chat-titulo {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(232,220,200,0.4);
+  margin-bottom: 16px;
+}
+#chat-historico {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.chat-msg {
+  padding: 12px 16px;
+  border-radius: 2px;
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 300;
+  max-width: 90%;
+}
+.chat-msg.user {
+  background: rgba(201,168,76,0.07);
+  border: 1px solid rgba(201,168,76,0.2);
+  color: #e8dcc8;
+  align-self: flex-end;
+  text-align: right;
+}
+.chat-msg.assistant {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(232,220,200,0.08);
+  color: rgba(232,220,200,0.85);
+  align-self: flex-start;
+  white-space: pre-wrap;
+}
+.chat-input-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+#chat-input {
+  flex: 1;
+  min-height: 44px;
+  max-height: 120px;
+  padding: 12px 16px;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 2px;
+  color: #e8dcc8;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  outline: none;
+  resize: none;
+}
+#chat-input:focus { border-color: #c9a84c; }
+#chat-feedback {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: rgba(232,220,200,0.4);
+  margin-top: 8px;
+  min-height: 16px;
+}
+
+.hist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+}
+.hist-info-titulo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  color: #e8dcc8;
+}
+.hist-info-empresa {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #c9a84c;
+  margin-top: 2px;
+}
+.hist-info-data {
+  font-size: 10px;
+  color: rgba(232,220,200,0.35);
+  margin-top: 4px;
+}
+.hist-score {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  color: #34d399;
+  min-width: 70px;
+  text-align: right;
+}
+.hist-score.sem-score {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: rgba(232,220,200,0.3);
+  text-transform: uppercase;
+}
+
+.score-bar-wrap {
+  margin: 20px 0 8px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 2px;
+  height: 6px;
+  overflow: hidden;
+}
+.score-bar {
+  height: 6px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #c9a84c, #34d399);
+  transition: width 0.8s ease;
+}
+.score-numero {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 48px;
+  font-weight: 300;
+  color: #c9a84c;
+  line-height: 1;
+}
+.score-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(232,220,200,0.35);
+  margin-top: 4px;
+}
+.comp-secao {
+  margin-top: 16px;
+}
+.comp-recomendacao {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-left: 2px solid #c9a84c;
+  font-size: 13px;
+  color: rgba(232,220,200,0.7);
+  font-style: italic;
+}
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
@@ -578,18 +787,42 @@
     </div>
 
     <div class="card" id="card-curriculo">
-      <h2>Currículo</h2>
-      <div id="curriculo-status"></div>
-      <div style="margin-top: 20px; display: flex; align-items: center; gap: 16px;">
-        <label for="inputCurriculo" class="btn-primary" style="cursor:pointer;">
-          Enviar Currículo
-        </label>
-        <input type="file" id="inputCurriculo" accept=".pdf,.docx" style="display:none;">
-        <span id="curriculo-feedback" style="font-size:12px; letter-spacing:2px; color: rgba(232,220,200,0.5);"></span>
+  <h2>Currículo</h2>
+  <div id="curriculo-status"></div>
+
+  <div style="margin-top:24px; display:flex; flex-direction:column; gap:24px;">
+
+    <!-- CERTIFICAÇÕES -->
+    <div>
+      <div style="font-size:10px; letter-spacing:3px; text-transform:uppercase; color:rgba(232,220,200,0.4); margin-bottom:8px;">Certificações & Complemento</div>
+      <textarea id="curriculo-complemento" placeholder="Cole aqui certificados e cursos que não estão no PDF..." style="width:100%; min-height:100px; padding:12px 16px; background:rgba(0,0,0,0.4); border:1px solid rgba(201,168,76,0.25); border-radius:2px; color:#e8dcc8; font-family:'Space Grotesk',sans-serif; font-size:13px; outline:none; resize:vertical;"></textarea>
+      <div style="margin-top:10px; display:flex; align-items:center; gap:12px;">
+        <button class="btn-primary" onclick="salvarComplemento()">Salvar</button>
+        <span id="complemento-feedback" style="font-size:12px; letter-spacing:2px; color:rgba(232,220,200,0.5);"></span>
       </div>
     </div>
 
-    <div class="card">
+    <!-- GITHUB -->
+    <div>
+      <div style="font-size:10px; letter-spacing:3px; text-transform:uppercase; color:rgba(232,220,200,0.4); margin-bottom:8px;">GitHub</div>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <input type="text" id="curriculo-github" placeholder="https://github.com/seu-usuario" style="flex:1;">
+        <button class="btn-primary" onclick="salvarGithub()">Salvar</button>
+      </div>
+      <span id="github-feedback" style="font-size:12px; letter-spacing:2px; color:rgba(232,220,200,0.5); margin-top:8px; display:block;"></span>
+    </div>
+
+    <!-- UPLOAD -->
+    <div style="padding-top:16px; border-top:1px solid rgba(201,168,76,0.1); display:flex; align-items:center; gap:16px;">
+      <label for="inputCurriculo" class="btn-primary" style="cursor:pointer;">Enviar Currículo</label>
+      <input type="file" id="inputCurriculo" accept=".pdf,.docx" style="display:none;">
+      <span id="curriculo-feedback" style="font-size:12px; letter-spacing:2px; color:rgba(232,220,200,0.5);"></span>
+    </div>
+
+  </div>
+</div>
+
+    <div class="card" id="card-analisar-vaga">
   <h2>Analisar Vaga</h2>
   <div class="vaga-input-row">
     <input type="text" id="inputUrlVaga" placeholder="Cole o link da vaga aqui..." autocomplete="off">
@@ -601,6 +834,23 @@
   </div>
   <div id="vaga-feedback" style="font-size:12px; letter-spacing:2px; color:rgba(232,220,200,0.5); margin-top:12px;"></div>
   <div id="vaga-resultado" class="vaga-resultado" style="display:none;"></div>
+  <div id="comparador-wrap" style="display:none; margin-top:16px;">
+  <button class="btn-primary" onclick="compararCurriculo()">Comparar com meu Currículo</button>
+  <div id="comparador-feedback" style="font-size:12px; letter-spacing:2px; color:rgba(232,220,200,0.5); margin-top:8px;"></div>
+  <div id="comparador-resultado"></div>
+</div>
+
+<!-- CHAT CONSULTIVO -->
+<div id="chat-consultivo-wrap">
+  <div class="chat-titulo">Consultor de Vaga — Pergunte sobre essa vaga</div>
+  <div id="chat-historico"></div>
+  <div class="chat-input-row">
+    <textarea id="chat-input" placeholder="Ex: Vale a pena me candidatar? O que reforçar no currículo?" rows="2"
+      onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();enviarPergunta();}"></textarea>
+    <button class="btn-primary" onclick="enviarPergunta()">Enviar</button>
+  </div>
+  <div id="chat-feedback"></div>
+</div>
 </div>
 
   <div class="card">
@@ -638,8 +888,224 @@
     </div>
   </div>
 
+<div class="card">
+  <h2>Histórico de Análises de Vagas</h2>
+  <div id="historicoLista"></div>
+  <div class="empty" id="historico-empty" style="display:none;">Nenhuma vaga analisada ainda.</div>
+</div>
+
   </div>
   <script>
+
+    let vagaAtual = null;
+
+    let historico_chat = [];
+
+function abrirChat() {
+  historico_chat = [];
+  document.getElementById('chat-historico').innerHTML = '';
+  document.getElementById('chat-consultivo-wrap').style.display = 'block';
+  document.getElementById('chat-feedback').textContent = '';
+}
+
+async function enviarPergunta() {
+  if (!vagaAtual) return;
+  const input = document.getElementById('chat-input');
+  const pergunta = input.value.trim();
+  if (!pergunta) return;
+
+  const historicoEl = document.getElementById('chat-historico');
+  const feedback = document.getElementById('chat-feedback');
+
+  // Mostra mensagem do usuário
+  historicoEl.innerHTML += `<div class="chat-msg user">${pergunta}</div>`;
+  input.value = '';
+  feedback.textContent = 'Consultando...';
+  historicoEl.scrollTop = historicoEl.scrollHeight;
+
+  try {
+    const res = await fetch(`${API}/vaga/consultar`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        titulo: vagaAtual.titulo || '',
+        empresa: vagaAtual.empresa || '',
+        requisitos_obrigatorios: vagaAtual.requisitos_obrigatorios || [],
+        requisitos_desejaveis: vagaAtual.requisitos_desejaveis || [],
+        resumo: vagaAtual.resumo || '',
+        pergunta: pergunta,
+        historico_chat: historico_chat
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      feedback.style.color = '#c0504d';
+      feedback.textContent = err.detail || 'Erro ao consultar.';
+      return;
+    }
+
+    const dados = await res.json();
+    const resposta = dados.resposta || '';
+
+    // Atualiza histórico em memória
+    historico_chat.push({ role: 'user', content: pergunta });
+    historico_chat.push({ role: 'assistant', content: resposta });
+
+    // Mostra resposta
+    const respostaFormatada = resposta.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    historicoEl.innerHTML += `<div class="chat-msg assistant">${respostaFormatada}</div>`;
+    feedback.textContent = '';
+    historicoEl.scrollTop = historicoEl.scrollHeight;
+
+  } catch {
+    feedback.style.color = '#c0504d';
+    feedback.textContent = 'Erro de conexão.';
+  }
+}
+
+async function salvarGithub() {
+  const url = document.getElementById('curriculo-github').value.trim();
+  const feedback = document.getElementById('github-feedback');
+  feedback.style.color = 'rgba(232,220,200,0.5)';
+  feedback.textContent = 'Salvando...';
+  try {
+    const res = await fetch(`${API}/curriculo/github`, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ github_url: url })
+    });
+    if (res.ok) {
+      feedback.style.color = '#34d399';
+      feedback.textContent = 'Salvo ✓';
+    } else {
+      feedback.style.color = '#c0504d';
+      feedback.textContent = 'Erro ao salvar.';
+    }
+  } catch {
+    feedback.style.color = '#c0504d';
+    feedback.textContent = 'Erro de conexão.';
+  }
+}
+
+function mostrarResultadoVaga(dados) {
+  vagaAtual = dados;
+  const el = document.getElementById('vaga-resultado');
+  const obrigatorios = (dados.requisitos_obrigatorios || []).map(r => `<span class="vaga-tag obrigatorio">${r}</span>`).join('');
+  const desejaveis = (dados.requisitos_desejaveis || []).map(r => `<span class="vaga-tag">${r}</span>`).join('');
+  el.innerHTML = `
+    <div class="vaga-resultado-titulo">${dados.titulo || 'Cargo não identificado'}</div>
+    <div class="vaga-resultado-empresa">${dados.empresa || 'Empresa não identificada'}</div>
+    ${obrigatorios ? `<div class="vaga-secao-label">Requisitos Obrigatórios</div><div class="vaga-tags">${obrigatorios}</div>` : ''}
+    ${desejaveis ? `<div class="vaga-secao-label">Requisitos Desejáveis</div><div class="vaga-tags">${desejaveis}</div>` : ''}
+    ${dados.resumo ? `<div class="vaga-resumo">${dados.resumo}</div>` : ''}
+  `;
+  
+  el.style.display = 'block';
+  document.getElementById('comparador-wrap').style.display = 'block';
+  abrirChat();
+  document.getElementById('comparador-resultado').innerHTML = '';
+  carregarHistorico();
+}
+
+async function carregarHistorico() {
+  const res = await fetch(`${API}/historico`);
+  const dados = await res.json();
+  const lista = document.getElementById('historicoLista');
+  const empty = document.getElementById('historico-empty');
+  lista.innerHTML = '';
+  if (dados.length === 0) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  dados.forEach(h => {
+    const data = h.data_analise ? h.data_analise.substring(0,10) : '';
+    const scoreHtml = (h.score === null || h.score === undefined)
+      ? `<span class="hist-score sem-score">Não comparado</span>`
+      : `<span class="hist-score">${h.score}%</span>`;
+    lista.innerHTML += `
+  <div class="hist-item">
+    <div>
+      <div class="hist-info-titulo">${h.titulo || 'Cargo não identificado'}</div>
+      <div class="hist-info-empresa">${h.empresa || 'Empresa não identificada'}</div>
+      <div class="hist-info-data">${data}</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:16px;">
+      ${scoreHtml}
+      <button class="btn-del" onclick="deletarHistorico(${h.id})">✕</button>
+    </div>
+  </div>`;
+  });
+}
+
+async function compararCurriculo() {
+  if (!vagaAtual) return;
+  const feedback = document.getElementById('comparador-feedback');
+  const resultado = document.getElementById('comparador-resultado');
+  feedback.style.color = 'rgba(232,220,200,0.5)';
+  feedback.textContent = 'Comparando...';
+  resultado.innerHTML = '';
+  try {
+    const res = await fetch(`${API}/vaga/comparar`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        titulo: vagaAtual.titulo || '',
+        empresa: vagaAtual.empresa || '',
+        requisitos_obrigatorios: vagaAtual.requisitos_obrigatorios || [],
+        requisitos_desejaveis: vagaAtual.requisitos_desejaveis || [],
+        historico_id: vagaAtual.historico_id || null
+      })
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      feedback.style.color = '#c0504d';
+      feedback.textContent = err.detail || 'Erro ao comparar.';
+      return;
+    }
+    const dados = await res.json();
+    feedback.textContent = '';
+    const score = dados.score || 0;
+    const tenho = (dados.tenho || []).map(r => `<span class="vaga-tag obrigatorio">${r}</span>`).join('');
+    const falta = (dados.falta || []).map(r => `<span class="vaga-tag" style="border-color:rgba(192,80,77,0.4);color:#c0504d;">${r}</span>`).join('');
+    resultado.innerHTML = `
+      <div style="margin-top:20px; padding-top:20px; border-top:1px solid rgba(201,168,76,0.15);">
+        <div class="score-numero">${score}<span style="font-size:24px;">%</span></div>
+        <div class="score-label">Compatibilidade</div>
+        <div class="score-bar-wrap"><div class="score-bar" style="width:${score}%"></div></div>
+        ${tenho ? `<div class="comp-secao"><div class="vaga-secao-label">O que você tem ✓</div><div class="vaga-tags">${tenho}</div></div>` : ''}
+        ${falta ? `<div class="comp-secao"><div class="vaga-secao-label">O que está faltando</div><div class="vaga-tags">${falta}</div></div>` : ''}
+        ${dados.recomendacao ? `<div class="comp-recomendacao">${dados.recomendacao}</div>` : ''}
+      </div>`;
+    carregarHistorico();
+  } catch {
+    feedback.style.color = '#c0504d';
+    feedback.textContent = 'Erro de conexão.';
+  }
+}
+
+async function salvarComplemento() {
+  const texto = document.getElementById('curriculo-complemento').value;
+  const feedback = document.getElementById('complemento-feedback');
+  feedback.style.color = 'rgba(232,220,200,0.5)';
+  feedback.textContent = 'Salvando...';
+  try {
+    const res = await fetch(`${API}/curriculo/complemento`, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ complemento: texto })
+    });
+    if (res.ok) {
+      feedback.style.color = '#34d399';
+      feedback.textContent = 'Salvo ✓';
+    } else {
+      feedback.style.color = '#c0504d';
+      feedback.textContent = 'Erro ao salvar.';
+    }
+  } catch {
+    feedback.style.color = '#c0504d';
+    feedback.textContent = 'Erro de conexão.';
+  }
+}
+
     const orb1 = document.querySelector('.orb-1');
     const orb2 = document.querySelector('.orb-2');
 
@@ -666,14 +1132,20 @@
   const statusEl = document.getElementById('curriculo-status');
   if (!dados) {
     statusEl.innerHTML = '<span style="color:rgba(232,220,200,0.3); letter-spacing:2px; font-size:11px; text-transform:uppercase;">Nenhum currículo enviado ainda</span>';
-  } else {
+ } else {
     const data = dados.data_upload ? dados.data_upload.substring(0,10) : '';
     statusEl.innerHTML = `
       <div class="curriculo-ativo">
         <span class="curriculo-ativo-nome">${dados.nome_arquivo}</span>
         <span class="curriculo-ativo-data">enviado em ${data}</span>
       </div>`;
-  }
+    if (dados.complemento) {
+        document.getElementById('curriculo-complemento').value = dados.complemento;
+      }
+    }
+    if (dados.github_url) {
+  document.getElementById('curriculo-github').value = dados.github_url;
+}
 }
 
 document.getElementById('inputCurriculo').addEventListener('change', async (e) => {
@@ -699,6 +1171,11 @@ document.getElementById('inputCurriculo').addEventListener('change', async (e) =
   }
   e.target.value = '';
 });
+
+async function deletarHistorico(id) {
+  await fetch(`${API}/historico/${id}`, { method: 'DELETE' });
+  carregarHistorico();
+}
 
 async function analisarUrl() {
   const url = document.getElementById('inputUrlVaga').value.trim();
@@ -757,20 +1234,6 @@ async function analisarTexto() {
     feedback.style.color = '#c0504d';
     feedback.textContent = 'Erro de conexão.';
   }
-}
-
-function mostrarResultadoVaga(dados) {
-  const el = document.getElementById('vaga-resultado');
-  const obrigatorios = (dados.requisitos_obrigatorios || []).map(r => `<span class="vaga-tag obrigatorio">${r}</span>`).join('');
-  const desejaveis = (dados.requisitos_desejaveis || []).map(r => `<span class="vaga-tag">${r}</span>`).join('');
-  el.innerHTML = `
-    <div class="vaga-resultado-titulo">${dados.titulo || 'Cargo não identificado'}</div>
-    <div class="vaga-resultado-empresa">${dados.empresa || 'Empresa não identificada'}</div>
-    ${obrigatorios ? `<div class="vaga-secao-label">Requisitos Obrigatórios</div><div class="vaga-tags">${obrigatorios}</div>` : ''}
-    ${desejaveis ? `<div class="vaga-secao-label">Requisitos Desejáveis</div><div class="vaga-tags">${desejaveis}</div>` : ''}
-    ${dados.resumo ? `<div class="vaga-resumo">${dados.resumo}</div>` : ''}
-  `;
-  el.style.display = 'block';
 }
 
 carregarCurriculo();
@@ -901,6 +1364,8 @@ carregarCurriculo();
     });
 
     carregarCandidaturas();
+    carregarCurriculo();
+    carregarHistorico();
   </script>
 </body>
 </html>
